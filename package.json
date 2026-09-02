@@ -1,0 +1,9 @@
+{
+  "name": "kamiichi-miracles-manager",
+  "version": "1.0.0",
+  "description": "上市ミラクルズ ミニバス用ダッシュボード - GitHub Pages",
+  "scripts": {
+    "update-version": "node update-version.js",
+    "deploy": "node update-version.js && node deploy.js"
+  }
+}

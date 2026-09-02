@@ -1,0 +1,25 @@
+{
+  "name": "上市ミラクルズ",
+  "short_name": "ミラクルズ",
+  "description": "上市ミニバスケットボール ミラクルズ",
+  "start_url": "./index.html",
+  "scope": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#c62828",
+  "theme_color": "#c62828",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
