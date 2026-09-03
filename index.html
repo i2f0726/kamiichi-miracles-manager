@@ -340,7 +340,7 @@ if ('serviceWorker' in navigator) {
 
 <div class="pw-screen" id="pwScreen" style="display:none;">
   <div class="pw-box">
-    <div style="width:64px;height:64px;border-radius:10px;background:var(--theme-main);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;padding:4px;box-sizing:border-box;"><img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+    <div style="width:64px;height:64px;border-radius:10px;background:#ffffff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;padding:4px;box-sizing:border-box;"><img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
     <div class="pw-title">MIRACLES</div>
     <div class="pw-sub">パスワードを入力してください</div>
     <div class="pin-disp" id="pinDisp">- - - -</div>
@@ -679,15 +679,13 @@ if ('serviceWorker' in navigator) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ========== Firebase 初期化 ==========
-// ⚠️ TODO: ミラクルズ用に新しいFirebaseプロジェクトを作成し、下記を差し替えてください
-// （アンテロープスと同じプロジェクトを使うと選手データ等が混ざってしまいます）
 const firebaseConfig = {
-  apiKey: "（新プロジェクトのAPIキーをここに）",
+  apiKey: "AIzaSyBh5wmpOwjM4f3A5kTCz9EcSX5R1pWwVoM",
   authDomain: "kamiichi-miracles-manager.firebaseapp.com",
   projectId: "kamiichi-miracles-manager",
   storageBucket: "kamiichi-miracles-manager.firebasestorage.app",
-  messagingSenderId: "（新プロジェクトの値）",
-  appId: "（新プロジェクトの値）"
+  messagingSenderId: "866853840431",
+  appId: "1:866853840431:web:fdfa6961e62b82741948da"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
