@@ -467,6 +467,26 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   </div>
 </header>
 
+<div id="adminLoginBar" style="text-align:right;padding:8px 16px;background:var(--forest);">
+  <button id="adminLoginBtn" onclick="toggleAdmin()" style="padding:7px 14px;border-radius:100px;border:1px solid #999;background:#ffffff;color:#111;font-size:0.68rem;font-weight:900;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.5px;">🔒 管理者ログイン</button>
+</div>
+
+<!-- 管理者ログイン用ミニPINポップアップ（閲覧モードから管理者モードへ切り替え） -->
+<div id="adminOverlay" style="display:none;position:fixed;inset:0;z-index:15000;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.6);">
+  <div class="pw-box" style="width:260px;">
+    <div class="pw-title" style="font-size:1rem;">🔒 管理者パスワード</div>
+    <div class="pin-disp" id="adminPinDisp" style="font-size:1.7rem;letter-spacing:12px;">- - - -</div>
+    <div class="pin-err" id="adminPinErr"></div>
+    <div class="np" style="margin-top:10px;">
+      <button class="np-btn" onclick="adminInp('1')">1</button><button class="np-btn" onclick="adminInp('2')">2</button><button class="np-btn" onclick="adminInp('3')">3</button>
+      <button class="np-btn" onclick="adminInp('4')">4</button><button class="np-btn" onclick="adminInp('5')">5</button><button class="np-btn" onclick="adminInp('6')">6</button>
+      <button class="np-btn" onclick="adminInp('7')">7</button><button class="np-btn" onclick="adminInp('8')">8</button><button class="np-btn" onclick="adminInp('9')">9</button>
+      <button class="np-btn" onclick="adminClrPin()">C</button><button class="np-btn" onclick="adminInp('0')">0</button><button class="np-btn" onclick="adminBspPin()">⌫</button>
+    </div>
+    <button onclick="closeAdminOverlay()" style="margin-top:14px;width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;background:#f2f2f2;color:#333;font-size:0.85rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">キャンセル</button>
+  </div>
+</div>
+
 <div class="tabs">
   <div class="tab active" id="tab-view" onclick="switchTab('view')">📊 試合結果</div>
   <div class="tab" id="tab-admin" onclick="switchTab('admin')">✏️ 管理者入力</div>
@@ -660,12 +680,17 @@ function checkPin() {
   }
 }
 
-function unlockApp() {
-  document.getElementById('pwScreen').style.display = 'none';
-  document.getElementById('appRoot').style.display = 'block';
+function applyAdminUI() {
   document.getElementById('tab-admin').style.display = isAdmin ? '' : 'none';
   document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
   document.querySelector('.tabs').style.display = isAdmin ? '' : 'none';
+  document.getElementById('adminLoginBar').style.display = isAdmin ? 'none' : 'block';
+}
+
+function unlockApp() {
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  applyAdminUI();
   switchTab('view');
   render();
 }
@@ -678,6 +703,45 @@ function lockApp() {
   document.getElementById('pinErr').textContent = '';
   document.getElementById('pwScreen').style.display = 'flex';
   document.getElementById('appRoot').style.display = 'none';
+}
+
+// ===== 閲覧モード → 管理者モードへの切り替え（ミニPINポップアップ） =====
+var adminPin = '';
+function adminInp(n) {
+  if (adminPin.length >= 4) return;
+  adminPin += n;
+  updateAdminPinDisp();
+  if (adminPin.length === 4) checkAdminPin();
+}
+function adminClrPin() { adminPin = ''; updateAdminPinDisp(); }
+function adminBspPin() { adminPin = adminPin.slice(0, -1); updateAdminPinDisp(); }
+function updateAdminPinDisp() {
+  document.getElementById('adminPinDisp').textContent = (adminPin + '----').slice(0, 4).split('').join(' ');
+}
+function checkAdminPin() {
+  if (adminPin === PASSWORDS.admin) {
+    isAdmin = true;
+    closeAdminOverlay();
+    applyAdminUI();
+    render();
+    toast('✅ 管理者モードに切り替えました');
+  } else {
+    document.getElementById('adminPinErr').textContent = 'パスワードが違います';
+    setTimeout(function() {
+      adminPin = '';
+      updateAdminPinDisp();
+      document.getElementById('adminPinErr').textContent = '';
+    }, 1000);
+  }
+}
+function toggleAdmin() {
+  adminPin = '';
+  updateAdminPinDisp();
+  document.getElementById('adminPinErr').textContent = '';
+  document.getElementById('adminOverlay').style.display = 'flex';
+}
+function closeAdminOverlay() {
+  document.getElementById('adminOverlay').style.display = 'none';
 }
 
 // スプラッシュ：1秒表示 → 白くフェード（1秒）→ パスワード画面
@@ -973,6 +1037,11 @@ window.inp = inp;
 window.clrPin = clrPin;
 window.bspPin = bspPin;
   window.lockApp = lockApp;
+window.toggleAdmin = toggleAdmin;
+window.closeAdminOverlay = closeAdminOverlay;
+window.adminInp = adminInp;
+window.adminClrPin = adminClrPin;
+window.adminBspPin = adminBspPin;
 window.doLive = doLive;
 window.doConfirm = doConfirm;
 window.doEdit = doEdit;
