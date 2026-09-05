@@ -3,7 +3,7 @@
 <meta name="color-scheme" content="light">
 <!-- PWA設定 -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#c62828">
+<meta name="theme-color" content="#e91e63">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="上市ミラクルズ">
@@ -49,9 +49,9 @@ if ('serviceWorker' in navigator) {
 <style>
   /* ===== カラーテーマ（ここを変えれば色違い版が作れます） ===== */
   :root {
-    --theme-main: #c62828;        /* メインカラー（ゴールド） */
-    --theme-light: #ef9a9a;       /* メインの明るい版 */
-    --theme-dark: #4a0000;        /* メインの暗い版（バッジ背景など） */
+    --theme-main: #e91e63;        /* メインカラー（ゴールド） */
+    --theme-light: #f8bbd0;       /* メインの明るい版 */
+    --theme-dark: #4a0929;        /* メインの暗い版（バッジ背景など） */
     --theme-text-on: #ffffff;     /* メインカラー上に乗せる文字色 */
   }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -117,7 +117,7 @@ if ('serviceWorker' in navigator) {
   .ball-search-label { font-size:14px; font-weight:700; color:var(--theme-dark); margin-bottom:6px; letter-spacing:0.5px; }
   .search-box { position:relative; display:flex; align-items:center; gap:8px; }
   .search-box input { flex:1; min-width:0; padding:9px 14px; border:1px solid var(--theme-main); border-radius:8px; background:#fff; color:#111; font-size:17px; font-weight:700; font-family:inherit; box-sizing:border-box; }
-  .search-box input:focus { outline:none; border-color:var(--theme-dark); box-shadow:0 0 0 2px rgba(198,40,40,0.2); }
+  .search-box input:focus { outline:none; border-color:var(--theme-dark); box-shadow:0 0 0 2px rgba(233,30,99,0.2); }
   .search-go { flex-shrink:0; width:42px; height:38px; border-radius:8px; border:none; background:var(--theme-main); color:var(--theme-text-on); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; font-family:inherit; }
   .search-go:hover { background:var(--theme-dark); }
   .search-go:active { transform:scale(0.95); }
@@ -335,7 +335,7 @@ if ('serviceWorker' in navigator) {
     <img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;">
   </div>
   <div style="color:#ffffff;font-size:28px;font-weight:900;letter-spacing:4px;">MIRACLES</div>
-  <div style="color:#c62828;font-size:13px;font-weight:700;letter-spacing:4px;margin-top:8px;">BASKETBALL CLUB · KAMIICHI</div>
+  <div style="color:#e91e63;font-size:13px;font-weight:700;letter-spacing:4px;margin-top:8px;">BASKETBALL CLUB · KAMIICHI</div>
 </div>
 
 <div class="pw-screen" id="pwScreen" style="display:none;">
@@ -518,6 +518,14 @@ if ('serviceWorker' in navigator) {
           <div id="sDutyRows"></div>
         </div>
         <label>メモ</label><textarea id="sMemo" placeholder="集合時間・持ち物など"></textarea>
+        <label>PDF資料（任意）</label>
+        <div id="sPdfCurrent" style="display:none;margin-bottom:6px;font-size:14px;background:#fffaeb;border:1px solid var(--theme-light);border-radius:8px;padding:8px 10px;">
+          📄 <a href="#" id="sPdfCurrentLink" target="_blank" rel="noopener" style="color:var(--theme-main);text-decoration:underline;font-weight:700;"><span id="sPdfCurrentName"></span></a>
+          <button type="button" onclick="removeSchedulePdf()" style="margin-left:8px;font-size:12px;color:#c00;background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit;">削除</button>
+        </div>
+        <input type="file" id="sPdfFile" accept="application/pdf">
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">※ PDFファイルのみ、10MBまで</div>
+        <div id="sPdfProgress" style="display:none;font-size:13px;color:var(--theme-main);font-weight:700;margin-top:6px;">📤 アップロード中…</div>
         <div class="modal-btns">
           <button class="btn-cancel" onclick="closeScheduleModal()">キャンセル</button>
           <button class="btn-delete" id="sDeleteBtn" onclick="deleteSchedule()" style="display:none;background:#fff0f0;color:#c00;">削除</button>
@@ -676,6 +684,7 @@ if ('serviceWorker' in navigator) {
 <!-- Firebase SDK (Compat版) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // ========== Firebase 初期化 ==========
@@ -689,6 +698,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 // ========== 定数 ==========
 const PASSWORDS={ view:'1234', admin:'9999' };
@@ -705,6 +715,8 @@ let calYear=now.getFullYear(), calMonth=now.getMonth();
 // ========== データ（Firestoreから読み込む） ==========
 let players=[];
 let schedules=[];
+let scheduleCurrentPdf={url:null, name:null};
+let schedulePdfRemoved=false;
 let infos=[];
 // 月次固定メッセージ（key: "YYYY-MM" → {body: string}）
 let monthlyMessages={};
@@ -1668,6 +1680,7 @@ function renderScheduleList(){
         ${s.destination?`<div class="schedule-detail" style="margin-top:4px;"><a href="javascript:void(0)" onclick="openGoogleMaps('${escapeHtml(s.destination).replace(/'/g,"\\'")}')" class="map-link">📍 ${escapeHtml(s.destination)}</a></div>`:''}
         ${dutyHtml}
         ${s.memo?`<div class="schedule-detail" style="margin-top:2px;white-space:pre-wrap;">${linkify(s.memo)}</div>`:''}
+        ${s.pdfUrl?`<div class="schedule-detail" style="margin-top:4px;"><a href="${s.pdfUrl}" target="_blank" rel="noopener" style="color:var(--theme-main);text-decoration:underline;font-weight:700;">📄 ${escapeHtml(s.pdfName||'PDF資料')}</a></div>`:''}
       </div>
       ${editBtn}
     </div>`;
@@ -1686,6 +1699,11 @@ function openScheduleModal(dateStr){
   document.getElementById('sDestination').value='';
   document.getElementById('sMemo').value='';
   document.getElementById('sDeleteBtn').style.display='none';
+  scheduleCurrentPdf={url:null, name:null};
+  schedulePdfRemoved=false;
+  document.getElementById('sPdfFile').value='';
+  document.getElementById('sPdfCurrent').style.display='none';
+  document.getElementById('sPdfProgress').style.display='none';
   // 曜日設定があればtitleや会場・時間にデフォルト値を流し込む
   if(dateStr){
     const dt=new Date(dateStr+'T00:00:00');
@@ -1712,6 +1730,18 @@ function editSchedule(id){
   document.getElementById('sPlace').value=s.place||'';
   document.getElementById('sDestination').value=s.destination||'';
   document.getElementById('sMemo').value=s.memo||'';
+  schedulePdfRemoved=false;
+  document.getElementById('sPdfFile').value='';
+  document.getElementById('sPdfProgress').style.display='none';
+  if(s.pdfUrl){
+    scheduleCurrentPdf={url:s.pdfUrl, name:s.pdfName||'PDF資料'};
+    document.getElementById('sPdfCurrentName').textContent=scheduleCurrentPdf.name;
+    document.getElementById('sPdfCurrentLink').href=scheduleCurrentPdf.url;
+    document.getElementById('sPdfCurrent').style.display='block';
+  } else {
+    scheduleCurrentPdf={url:null, name:null};
+    document.getElementById('sPdfCurrent').style.display='none';
+  }
   // 当番欄の描画（既存の値で）
   renderDutySection(s.date, s);
   const delBtn=document.getElementById('sDeleteBtn');
@@ -1758,6 +1788,10 @@ function renderDutySection(dateStr, existing){
   section.dataset.dutyType=set.duty;
 }
 function closeScheduleModal(){ document.getElementById('scheduleModal').classList.remove('open'); }
+function removeSchedulePdf(){
+  schedulePdfRemoved=true;
+  document.getElementById('sPdfCurrent').style.display='none';
+}
 async function deleteSchedule(){
   if(!editingScheduleId){ alert('削除対象がありません'); return; }
   const s=schedules.find(x=>x.id===editingScheduleId);
@@ -1769,6 +1803,9 @@ async function deleteSchedule(){
     okClass:'btn-delete',
     onOk: async ()=>{
       try{
+        if(s && s.pdfUrl){
+          try{ await storage.refFromURL(s.pdfUrl).delete(); }catch(e){ console.warn('PDF削除に失敗:', e); }
+        }
         await db.collection('schedules').doc(editingScheduleId).delete();
         editingScheduleId=null;
         closeScheduleModal();
@@ -1858,6 +1895,11 @@ async function saveSchedule(){
   const date=document.getElementById('sDate').value;
   const title=document.getElementById('sTitle').value.trim();
   if(!date||!title){ alert('日付とタイトルを入力してください'); return; }
+  const pdfFile=document.getElementById('sPdfFile').files[0]||null;
+  if(pdfFile){
+    if(pdfFile.type!=='application/pdf'){ alert('PDFファイルを選択してください'); return; }
+    if(pdfFile.size>10*1024*1024){ alert('PDFは10MBまでです'); return; }
+  }
   // 当番情報を収集
   const section=document.getElementById('sDutySection');
   let dutyType=null, duty=[];
@@ -1867,6 +1909,11 @@ async function saveSchedule(){
     selects.forEach(sel=>{ duty.push(sel.value||''); });
   }
   const data={ date, type:document.getElementById('sType').value, title, start:document.getElementById('sStart').value, end:document.getElementById('sEnd').value, place:document.getElementById('sPlace').value.trim(), destination:document.getElementById('sDestination').value.trim(), memo:document.getElementById('sMemo').value.trim(), dutyType, duty };
+  // 既存PDFを削除も差し替えもしない場合は、そのまま引き継ぐ
+  if(scheduleCurrentPdf.url && !schedulePdfRemoved && !pdfFile){
+    data.pdfUrl=scheduleCurrentPdf.url;
+    data.pdfName=scheduleCurrentPdf.name;
+  }
   const isEdit=!!editingScheduleId;
   showConfirmModal({
     title: isEdit?'予定を保存':'予定を追加',
@@ -1874,14 +1921,32 @@ async function saveSchedule(){
     okLabel:'💾 保存する',
     okClass:'btn-submit',
     onOk: async ()=>{
+      const progressEl=document.getElementById('sPdfProgress');
       try{
-        if(editingScheduleId){
-          await db.collection('schedules').doc(editingScheduleId).set({...data, adminKey:ADMIN_KEY});
+        // 差し替え・削除で不要になった旧PDFをStorageから削除
+        if(scheduleCurrentPdf.url && (schedulePdfRemoved || pdfFile)){
+          try{ await storage.refFromURL(scheduleCurrentPdf.url).delete(); }catch(e){ console.warn('旧PDF削除に失敗:', e); }
+        }
+        let docId=editingScheduleId;
+        if(isEdit){
+          await db.collection('schedules').doc(docId).set({...data, adminKey:ADMIN_KEY});
         } else {
-          await db.collection('schedules').add({...data, adminKey:ADMIN_KEY});
+          const ref=await db.collection('schedules').add({...data, adminKey:ADMIN_KEY});
+          docId=ref.id;
+        }
+        // 新しいPDFがあればアップロードしてURLを紐付け
+        if(pdfFile){
+          if(progressEl) progressEl.style.display='block';
+          const path=`schedules/${docId}/${Date.now()}_${pdfFile.name}`;
+          const fileRef=storage.ref().child(path);
+          await fileRef.put(pdfFile);
+          const url=await fileRef.getDownloadURL();
+          await db.collection('schedules').doc(docId).set({pdfUrl:url, pdfName:pdfFile.name, adminKey:ADMIN_KEY}, {merge:true});
+          if(progressEl) progressEl.style.display='none';
         }
         closeScheduleModal();
       } catch(e){
+        if(progressEl) progressEl.style.display='none';
         alert('保存に失敗しました: '+e.message);
         console.error(e);
       }
