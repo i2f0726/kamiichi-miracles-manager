@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Miracles Scores</title>
+
+<!-- PWA設定（ホーム画面追加・全画面表示） -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C0392B">
+
+<!-- iOS用：ホーム画面追加時の全画面表示・アイコン -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Miracles">
+<link rel="apple-touch-icon" href="icon-180.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root {
+  --forest: #0a0a0a;
+  --green:  #111111;
+  --green2: #181818;
+  --gold:   #E63946;
+  --gold2:  #FF6B6B;
+  --text:   #F0EAD6;
+  --muted:  #7A8C6E;
+  --card:   #0f0f0f;
+  --border: #252525;
+  --red:    #C0392B;
+  --win:    #2E7D32;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--forest); color:var(--text); font-family:'Noto Sans JP',sans-serif; min-height:100vh; }
+
+/* ヘッダー */
+header {
+  background: linear-gradient(160deg, #C0392B 0%, #E63946 55%, #B71C1C 100%);
+  border-bottom: 2px solid #ffffff;
+  padding: 20px 16px 16px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* 鹿シルエットSVG */
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem; letter-spacing: 6px;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(230,57,70,0.5), 0 2px 4px rgba(0,0,0,0.8);
+  line-height: 1;
+}
+.logo-sub {
+  font-size: 0.6rem; color: var(--muted);
+  letter-spacing: 4px; margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* タブ */
+.tabs {
+  display: flex;
+  background: #0f0f0f;
+  border-bottom: 2px solid var(--border);
+}
+.tab {
+  flex:1; padding:13px 8px;
+  text-align:center; font-size:0.75rem; font-weight:700;
+  color:var(--muted); cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:all 0.25s; letter-spacing:1px;
+}
+.tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+.section { display:none; padding:16px; }
+.section.active { display:block; }
+
+/* ボタン */
+.btn {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color:#ffffff; border:none; border-radius:8px;
+  padding:10px 18px; font-weight:900; font-size:0.85rem;
+  cursor:pointer; font-family:'Noto Sans JP',sans-serif;
+  transition:all 0.2s; white-space:nowrap;
+  box-shadow: 0 2px 8px rgba(230,57,70,0.3);
+}
+.btn:active { opacity:0.8; transform:scale(0.97); }
+
+/* インプット */
+input[type=password], input[type=text], input[type=date], input[type=number] {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius:8px; color:var(--text);
+  padding:10px 12px; font-size:0.85rem;
+  font-family:'Noto Sans JP',sans-serif;
+  width:100%; outline:none;
+  transition:border-color 0.2s;
+}
+input:focus { border-color:var(--gold); }
+input[type=date] { color-scheme: dark; color: var(--text); }
+input[type=number] { text-align:center; font-size:1.1rem; font-weight:700; }
+label { display:block; font-size:0.68rem; color:var(--muted); margin-bottom:4px; letter-spacing:1px; }
+
+/* フォームカード */
+.form-card {
+  background: linear-gradient(160deg, #111111, #0a0a0a);
+  border:1px solid var(--border); border-radius:14px;
+  padding:20px; margin-bottom:16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.form-card h3 { font-size:0.75rem; color:var(--gold); letter-spacing:3px; margin-bottom:16px; text-transform:uppercase; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.row1 { margin-bottom:10px; }
+
+/* クォーター */
+.q-block {
+  background:rgba(0,0,0,0.3); border:1px solid var(--border);
+  border-radius:10px; padding:12px; margin-bottom:10px;
+}
+.q-block-title { font-size:0.68rem; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
+.q-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.q-col { text-align:center; }
+.q-col label { color:var(--gold); font-weight:700; font-size:0.65rem; }
+
+/* ライブプレビュー */
+.live-preview {
+  background: rgba(192,57,43,0.08);
+  border:1px solid rgba(192,57,43,0.35);
+  border-radius:10px; padding:14px; margin-bottom:12px;
+}
+.live-preview-title { font-size:0.65rem; color:#e74c3c; letter-spacing:2px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.live-score-row { display:flex; align-items:center; justify-content:center; gap:16px; }
+.live-team { text-align:center; }
+.live-team-name { font-size:0.65rem; color:var(--muted); margin-bottom:4px; }
+.live-num { font-family:'Bebas Neue',sans-serif; font-size:2.6rem; line-height:1; color:var(--text); }
+.live-num.ahead { color:var(--gold); }
+.live-vs { font-family:'Bebas Neue',sans-serif; color:var(--muted); font-size:0.9rem; }
+
+/* ログイン */
+.login-box {
+  background: linear-gradient(160deg, #111111, #0a0a0a);
+  border:1px solid var(--border); border-radius:14px;
+  padding:32px 20px; text-align:center; margin-bottom:16px;
+}
+.login-box h3 { font-size:0.85rem; color:var(--muted); letter-spacing:3px; margin-bottom:20px; }
+.pw-row { display:flex; gap:8px; max-width:280px; margin:0 auto; }
+
+/* 管理者ヘッダー */
+.admin-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.admin-badge {
+  background: rgba(230,57,70,0.12);
+  border:1px solid var(--gold); color:var(--gold);
+  font-size:0.65rem; padding:5px 12px; border-radius:100px; letter-spacing:1px;
+}
+.admin-btns { display:flex; gap:8px; }
+
+/* 統計 */
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:0; }
+.stat-card {
+  background: rgba(255,255,255,0.05);
+  border:1px solid var(--border); border-radius:10px;
+  padding:10px 8px; text-align:center;
+}
+.stat-num { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--gold); line-height:1; }
+.stat-label { font-size:0.62rem; color:var(--muted); margin-top:4px; letter-spacing:1px; font-weight:900; }
+header .stat-card { background: rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); }
+header .stat-num { color:#ffffff; }
+header .stat-label { color:rgba(255,255,255,0.85); }
+
+/* 試合カード */
+.match-list { display:flex; flex-direction:column; gap:14px; }
+.match-card {
+  background: linear-gradient(160deg, #111111, #0a0a0a);
+  border:1px solid var(--border); border-radius:14px;
+  overflow:hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  animation: fadeIn 0.35s ease;
+}
+.match-card.is-live {
+  border-color: rgba(192,57,43,0.6);
+  box-shadow: 0 0 20px rgba(192,57,43,0.15);
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.card-header {
+  background: linear-gradient(90deg, rgba(230,57,70,0.10), transparent);
+  padding:13px 16px; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.card-header.is-live { background:linear-gradient(90deg, rgba(192,57,43,0.15), transparent); }
+.card-title { font-size:0.95rem; font-weight:900; color:var(--text); }
+.card-meta { font-size:0.65rem; color:var(--muted); margin-top:3px; }
+
+.result-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:0.95rem;
+  letter-spacing:2px; padding:5px 12px; border-radius:8px;
+  display:flex; align-items:center; gap:4px;
+}
+.badge-win  { background:rgba(46,125,50,0.25); color:#66BB6A; border:1px solid rgba(46,125,50,0.4); }
+.badge-lose { background:rgba(192,57,43,0.2);  color:#EF5350; border:1px solid rgba(192,57,43,0.4); }
+.badge-draw { background:rgba(230,57,70,0.15); color:var(--gold); border:1px solid rgba(230,57,70,0.3); }
+.badge-live { background:rgba(192,57,43,0.2);   color:#e74c3c; border:1px solid rgba(192,57,43,0.4); }
+
+.card-body { padding:16px; }
+
+/* スコアエリア */
+.score-area {
+  background: #ffffff;
+  border:1px solid #ddd;
+  border-radius:12px; padding:20px 10px;
+  margin-bottom:12px;
+  position:relative;
+  overflow:hidden;
+}
+.score-area::before {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:120px; height:120px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,0.08);
+  pointer-events:none;
+}
+.score-area::after {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:200px; height:200px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,0.04);
+  pointer-events:none;
+}
+.score-row { display:flex; align-items:center; gap:10px; position:relative; z-index:1; }
+.score-team { flex:1; text-align:center; }
+.score-team-name { font-size:0.75rem; color:#333333; margin-bottom:6px; letter-spacing:2px; text-transform:uppercase; font-weight:900; }
+.score-num { font-family:'Bebas Neue',sans-serif; font-size:4.5rem; line-height:1; color:#111111; }
+.score-num.winner { color:#C0392B; text-shadow:none; }
+.score-divider { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.score-vs { font-family:'Bebas Neue',sans-serif; font-size:0.85rem; color:#888888; letter-spacing:2px; }
+.score-line { width:1px; height:40px; background:#cccccc; }
+
+/* クォーター詳細 */
+.q-detail-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+}
+.q-detail-item {
+  background: #ffffff;
+  border:1px solid #ddd; border-radius:8px;
+  padding:8px 4px; text-align:center;
+}
+.q-detail-label { font-size:0.58rem; color:#C0392B; font-weight:700; display:block; margin-bottom:4px; letter-spacing:1px; }
+.q-detail-score { font-size:0.8rem; font-weight:700; color:#111111; }
+.q-detail-score span { color:#888888; font-weight:400; }
+
+.card-footer {
+  padding:10px 16px; display:flex; justify-content:flex-end; gap:8px;
+  border-top:1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+}
+
+/* 空 */
+.empty { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-icon { font-size:3rem; margin-bottom:12px; }
+.empty-text { font-size:0.85rem; }
+
+/* トースト */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(120px);
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#ffffff; padding:12px 24px; border-radius:100px;
+  font-size:0.8rem; font-weight:900;
+  transition:transform 0.3s; z-index:9999;
+  white-space:nowrap; pointer-events:none;
+  box-shadow:0 4px 16px rgba(230,57,70,0.4);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* 削除確認モーダル */
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display:none; align-items:center; justify-content:center;
+  z-index:10000;
+  padding:20px;
+  animation: fadeIn 0.2s ease-out;
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background:var(--card);
+  border:2px solid var(--gold);
+  border-radius:16px;
+  max-width:380px; width:100%;
+  padding:24px 20px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(230,57,70,0.2);
+  animation: slideUp 0.25s ease-out;
+}
+.modal-icon {
+  text-align:center;
+  font-size:2.4rem;
+  margin-bottom:8px;
+}
+.modal-title {
+  text-align:center;
+  font-size:1.05rem;
+  font-weight:900;
+  color:var(--gold);
+  margin-bottom:14px;
+  letter-spacing:0.05em;
+}
+.modal-body {
+  background:var(--green2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 14px;
+  margin-bottom:18px;
+  font-size:0.85rem;
+  color:var(--text);
+  line-height:1.6;
+}
+.modal-body .match-info {
+  font-weight:700;
+  color:var(--gold2);
+  margin-bottom:4px;
+}
+.modal-warning {
+  text-align:center;
+  font-size:0.78rem;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+.modal-actions {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.modal-btn {
+  padding:12px 16px;
+  border:none;
+  border-radius:8px;
+  font-size:0.88rem;
+  font-weight:900;
+  cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.modal-btn:active { transform: scale(0.97); }
+.modal-btn-cancel {
+  background:var(--green2);
+  color:var(--text);
+  border:1px solid var(--border);
+}
+.modal-btn-cancel:hover { background:#222; }
+.modal-btn-confirm {
+  background:linear-gradient(135deg, var(--red), #d44a3b);
+  color:#fff;
+  box-shadow:0 4px 12px rgba(192,57,43,0.4);
+}
+.modal-btn-confirm:hover { box-shadow:0 6px 16px rgba(192,57,43,0.6); }
+
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px) scale(0.96); }
+  to { opacity:1; transform: translateY(0) scale(1); }
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.dot { display:inline-block; width:7px; height:7px; background:#e74c3c; border-radius:50%; animation:blink 1s infinite; }
+
+/* 更新通知バナー（タップでリロード） */
+.update-banner {
+  position:fixed; top:0; left:0; right:0;
+  background:linear-gradient(135deg, var(--gold), var(--gold2));
+  color:#ffffff;
+  padding:14px 20px;
+  font-size:0.85rem; font-weight:900;
+  text-align:center;
+  cursor:pointer;
+  z-index:10001;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  transform:translateY(-100%);
+  transition:transform 0.3s ease-out;
+  display:flex; align-items:center; justify-content:center;
+  gap:8px;
+}
+.update-banner.show { transform:translateY(0); }
+.update-banner-icon {
+  display:inline-block;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+
+/* 区切り線 */
+.divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:14px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== コード入力ゲート（起動時に必ず表示） ===== -->
+<div id="gateOverlay" style="position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#B71C1C 0%,#E63946 55%,#8a0000 100%);">
+  <div style="max-width:300px;width:100%;text-align:center;">
+    <svg width="76" height="76" viewBox="0 0 64 64" style="margin:0 auto 18px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="62" height="62" rx="14" fill="rgba(255,255,255,0.12)" stroke="#ffffff" stroke-width="2"/>
+      <text x="32" y="42" font-family="'Bebas Neue',sans-serif" font-size="30" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
+    </svg>
+    <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:4px;color:#ffffff;font-size:1rem;margin-bottom:4px;">KAMIICHI MIRACLES</div>
+    <div style="font-size:0.68rem;color:rgba(255,255,255,0.8);letter-spacing:2px;margin-bottom:24px;">SCORE BOARD</div>
+    <input type="password" id="gateInput" inputmode="numeric" placeholder="コードを入力" style="text-align:center;font-size:1.3rem;letter-spacing:6px;background:rgba(255,255,255,0.95);border:none;border-radius:8px;padding:14px 12px;width:100%;color:#111;" onkeydown="if(event.key==='Enter')checkGateCode()">
+    <div id="gateError" style="display:none;color:#FFE0B2;font-size:0.75rem;margin-top:10px;letter-spacing:1px;">⚠️ コードが正しくありません</div>
+    <button onclick="checkGateCode()" style="margin-top:18px;width:100%;padding:13px;border-radius:8px;border:1px solid #999;background:#ffffff;color:#111;font-weight:900;font-size:0.9rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">入場する</button>
+  </div>
+</div>
+
+
+<div id="appRoot" style="display:none">
+<header style="padding:12px 16px;text-align:left;">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <svg width="64" height="64" viewBox="0 0 64 64" style="flex-shrink:0;filter:drop-shadow(0 0 8px rgba(230,57,70,0.5));" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="miraclesBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#E63946"/>
+          <stop offset="100%" stop-color="#B71C1C"/>
+        </linearGradient>
+      </defs>
+      <rect x="1" y="1" width="62" height="62" rx="14" fill="url(#miraclesBadge)" stroke="#ffffff" stroke-width="2"/>
+      <text x="32" y="42" font-family="'Bebas Neue',sans-serif" font-size="30" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
+    </svg>
+    <div class="stats-row" id="statsRow" style="flex:1;margin:0;gap:8px;"></div>
+  </div>
+  <div style="text-align:center;margin-top:10px;line-height:1.4;">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#ffffff;letter-spacing:6px;text-shadow:0 0 10px rgba(0,0,0,0.35);">Shine On</span>
+    <span style="font-size:0.55rem;color:rgba(255,255,255,0.85);letter-spacing:2px;font-weight:900;margin-left:8px;">| Kamiichi Miracles — Score Board</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tab-view" onclick="switchTab('view')">📊 試合結果</div>
+  <div class="tab" id="tab-admin" onclick="switchTab('admin')">✏️ 管理者入力</div>
+</div>
+
+<!-- 試合結果 -->
+<div id="view" class="section active" style="padding:0;">
+  <div style="padding:16px;">
+    <div class="match-list" id="matchList"></div>
+  </div>
+</div>
+
+<!-- 管理者 -->
+<div id="admin" class="section">
+  <div id="adminPanel" style="display:none">
+    <div class="admin-header">
+      <div class="admin-badge">✅ 管理者モード</div>
+      <div class="admin-btns">
+        <button class="btn" style="font-size:0.72rem;padding:7px 14px" onclick="doExcel()">📊 Excel出力</button>
+        <button class="btn" style="font-size:0.72rem;padding:7px 14px;background:transparent;border:1px solid var(--muted);color:var(--muted);" onclick="lockApp()">🔒 ロック</button>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3 id="formTitle">📝 試合を登録する</h3>
+
+      <div class="row1"><label>大会名 / 試合名</label><input type="text" id="fName" placeholder="例：〇〇カップ、練習試合"></div>
+      <div class="row2">
+        <div><label>日付</label><input type="date" id="fDate"></div>
+        <div><label>場所</label><input type="text" id="fPlace" placeholder="例：魚津市体育館"></div>
+      </div>
+      <div class="row1"><label>対戦相手</label><input type="text" id="fOpp" placeholder="例：〇〇ミニバス" oninput="updatePreview()"></div>
+
+      <div class="q-block">
+        <div class="q-block-title">クォーター別得点</div>
+        <div id="qError" style="display:none;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.5);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.75rem;color:#EF5350;letter-spacing:1px;"></div>
+        <div style="margin-bottom:12px">
+          <label style="margin-bottom:8px;color:var(--gold)">✨ 上市ミラクルズ（累計スコア）</label>
+          <div class="q-grid">
+            <div class="q-col"><label>1Q終了</label><input type="number" id="h1" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>2Q終了</label><input type="number" id="h2" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>3Q終了</label><input type="number" id="h3" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>4Q終了</label><input type="number" id="h4" min="0" value="0" oninput="updatePreview()"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div style="margin-top:12px">
+          <label style="margin-bottom:8px;color:var(--muted)">🆚 相手チーム（累計スコア）</label>
+          <div class="q-grid">
+            <div class="q-col"><label>1Q終了</label><input type="number" id="a1" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>2Q終了</label><input type="number" id="a2" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>3Q終了</label><input type="number" id="a3" min="0" value="0" oninput="updatePreview()"></div>
+            <div class="q-col"><label>4Q終了</label><input type="number" id="a4" min="0" value="0" oninput="updatePreview()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- プレビュー -->
+      <div class="live-preview">
+        <div class="live-preview-title"><span class="dot"></span>入力中プレビュー</div>
+        <div class="live-score-row">
+          <div class="live-team">
+            <div class="live-team-name">MIRACLES</div>
+            <div class="live-num" id="prevH">0</div>
+          </div>
+          <div class="live-vs">VS</div>
+          <div class="live-team">
+            <div class="live-team-name" id="prevOpp">相手</div>
+            <div class="live-num" id="prevA">0</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" style="background:#8B0000;color:#fff;box-shadow:0 2px 8px rgba(139,0,0,0.4);width:100%;margin-bottom:10px;padding:13px" onclick="doLive()">🔴 LIVE保存（試合中）</button>
+      <button class="btn" style="background:linear-gradient(135deg,#1a5c2a,#2e7d40);color:#fff;box-shadow:0 2px 8px rgba(30,100,50,0.4);width:100%;padding:14px;font-size:0.95rem" onclick="doConfirm()">✅ 試合確定して登録</button>
+    </div>
+  </div>
+</div>
+</div><!-- /#appRoot -->
+
+<div class="toast" id="toast"></div>
+
+<!-- 更新通知バナー（新バージョン検知時に表示） -->
+<div class="update-banner" id="updateBanner">
+  <span class="update-banner-icon">🔄</span>
+  <span>新しいバージョンがあります — タップで更新</span>
+</div>
+
+<!-- 削除確認モーダル -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">試合を削除しますか？</div>
+    <div class="modal-body" id="deleteModalBody">
+      <!-- 試合情報がここに入る -->
+    </div>
+    <div class="modal-warning">この操作は取り消せません</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" id="deleteModalCancel">キャンセル</button>
+      <button class="modal-btn modal-btn-confirm" id="deleteModalConfirm">削除する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", function() {
+var matches = [];
+var liveId = null;
+var editId = null;
+var isAdmin = false;
+
+// Firebase設定（kamiichi-miracles-manager）
+var firebaseConfig = {
+  apiKey: "AIzaSyBh5wmpOwjM4f3A5kTCz9EcSX5R1pWwVoM",
+  authDomain: "kamiichi-miracles-manager.firebaseapp.com",
+  projectId: "kamiichi-miracles-manager",
+  storageBucket: "kamiichi-miracles-manager.firebasestorage.app",
+  messagingSenderId: "866853840431",
+  appId: "1:866853840431:web:fdfa6961e62b82741948da"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// Firestoreからデータ読み込み＆リアルタイム更新
+function loadData() {
+  db.collection('matches').orderBy('createdAt', 'desc').onSnapshot(function(snapshot) {
+    matches = [];
+    snapshot.forEach(function(doc) {
+      var d = doc.data();
+      d.id = doc.id;
+      matches.push(d);
+    });
+    db.collection('meta').doc('state').get().then(function(doc) {
+      liveId = doc.exists ? (doc.data().liveId || null) : null;
+    });
+    render();
+  });
+}
+
+// Firestoreにデータ保存
+function saveData() {
+  // saveDataは個別関数で処理するため空にする
+}
+
+function saveMeta() {
+  db.collection('meta').doc('state').set({ liveId: liveId });
+}
+
+function switchTab(t) {
+  if (t === 'admin' && !isAdmin) { return; }
+  document.getElementById('view').classList.toggle('active', t === 'view');
+  document.getElementById('admin').classList.toggle('active', t === 'admin');
+  document.getElementById('tab-view').classList.toggle('active', t === 'view');
+  document.getElementById('tab-admin').classList.toggle('active', t === 'admin');
+  if (t === 'view') render();
+}
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ===== コード入力ゲート（チーム管理アプリと同じ 1234 / 9999 方式） =====
+function checkGateCode() {
+  var code = document.getElementById('gateInput').value.trim();
+  var errEl = document.getElementById('gateError');
+  if (code === '9999') {
+    isAdmin = true;
+    unlockApp();
+  } else if (code === '1234') {
+    isAdmin = false;
+    unlockApp();
+  } else {
+    errEl.style.display = 'block';
+    document.getElementById('gateInput').value = '';
+  }
+}
+
+function unlockApp() {
+  document.getElementById('gateOverlay').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+  document.getElementById('tab-admin').style.display = isAdmin ? '' : 'none';
+  document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
+  document.querySelector('.tabs').style.display = isAdmin ? '' : 'none';
+  switchTab('view');
+  render();
+}
+
+function lockApp() {
+  isAdmin = false;
+  editId = null;
+  document.getElementById('gateInput').value = '';
+  document.getElementById('gateError').style.display = 'none';
+  document.getElementById('gateOverlay').style.display = 'flex';
+  document.getElementById('appRoot').style.display = 'none';
+}
+
+function gv(id) { return document.getElementById(id).value.trim(); }
+function gn(id) { return parseInt(document.getElementById(id).value) || 0; }
+
+function fillForm(m) {
+  document.getElementById('fName').value = m.name || '';
+  document.getElementById('fDate').value = m.date || '';
+  document.getElementById('fPlace').value = m.place || '';
+  document.getElementById('fOpp').value = m.opp || '';
+  var hids = ['h1','h2','h3','h4'], aids = ['a1','a2','a3','a4'];
+  for (var i = 0; i < 4; i++) {
+    document.getElementById(hids[i]).value = m.hq[i] || 0;
+    document.getElementById(aids[i]).value = m.aq[i] || 0;
+  }
+  editId = m.id;
+}
+
+function clearForm() {
+  var ids = ['fName','fDate','fPlace','fOpp'];
+  for (var i = 0; i < ids.length; i++) document.getElementById(ids[i]).value = '';
+  var qids = ['h1','h2','h3','h4','a1','a2','a3','a4'];
+  for (var i = 0; i < qids.length; i++) document.getElementById(qids[i]).value = 0;
+  editId = null;
+  document.getElementById('formTitle').textContent = '📝 試合を登録する';
+  updatePreview();
+}
+
+function validateQScores() {
+  var hq = [gn('h1'),gn('h2'),gn('h3'),gn('h4')];
+  var aq = [gn('a1'),gn('a2'),gn('a3'),gn('a4')];
+  var errors = [];
+  var labels = ['1Q','2Q','3Q','4Q'];
+  for (var i = 1; i < 4; i++) {
+    if (hq[i] > 0 && hq[i] < hq[i-1]) {
+      errors.push('上市ミラクルズ: ' + labels[i] + '終了(' + hq[i] + '点) が ' + labels[i-1] + '終了(' + hq[i-1] + '点) より小さいです');
+    }
+    if (aq[i] > 0 && aq[i] < aq[i-1]) {
+      errors.push('相手チーム: ' + labels[i] + '終了(' + aq[i] + '点) が ' + labels[i-1] + '終了(' + aq[i-1] + '点) より小さいです');
+    }
+  }
+  var el = document.getElementById('qError');
+  if (errors.length > 0) {
+    el.style.display = 'block';
+    el.innerHTML = '⚠️ 入力エラー<br>' + errors.join('<br>');
+  } else {
+    el.style.display = 'none';
+    el.innerHTML = '';
+  }
+  return errors.length === 0;
+}
+
+function updatePreview() {
+  validateQScores();
+  var h = Math.max(gn('h1'),gn('h2'),gn('h3'),gn('h4'));
+  var a = Math.max(gn('a1'),gn('a2'),gn('a3'),gn('a4'));
+  var opp = gv('fOpp') || '相手';
+  document.getElementById('prevH').textContent = h;
+  document.getElementById('prevA').textContent = a;
+  document.getElementById('prevOpp').textContent = opp;
+  document.getElementById('prevH').className = 'live-num' + (h > a ? ' ahead' : '');
+  document.getElementById('prevA').className = 'live-num' + (a > h ? ' ahead' : '');
+}
+
+function buildMatch(isLive) {
+  var name = gv('fName'), date = gv('fDate'), opp = gv('fOpp');
+  if (!name || !date || !opp) { toast('⚠️ 大会名・日付・対戦相手は必須です'); return null; }
+  var hq = [gn('h1'),gn('h2'),gn('h3'),gn('h4')];
+  var aq = [gn('a1'),gn('a2'),gn('a3'),gn('a4')];
+  return { id: editId || Date.now(), name:name, date:date, place:gv('fPlace'), opp:opp, hq:hq, aq:aq, ht:Math.max(hq[0],hq[1],hq[2],hq[3]), at:Math.max(aq[0],aq[1],aq[2],aq[3]), live:isLive };
+}
+
+function doLive() {
+  if (!validateQScores()) { return; }
+  var m = buildMatch(true); if (!m) return;
+  m.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  if (editId) {
+    db.collection('matches').doc(String(editId)).set(m).then(function() {
+      liveId = String(editId);
+      saveMeta();
+      toast('🔴 LIVEで保存しました！');
+    }).catch(function(e) { toast('❌ エラー: ' + e.message); });
+  } else {
+    db.collection('matches').add(m).then(function(ref) {
+      editId = ref.id;
+      liveId = ref.id;
+      saveMeta();
+      toast('🔴 LIVEで保存しました！');
+    }).catch(function(e) { toast('❌ エラー: ' + e.message); });
+  }
+}
+
+function doConfirm() {
+  if (!validateQScores()) { return; }
+  var m = buildMatch(false); if (!m) return;
+  m.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+  if (editId) {
+    db.collection('matches').doc(String(editId)).set(m).then(function() {
+      liveId = null;
+      saveMeta();
+      clearForm();
+      toast('🏆 試合確定！登録しました！');
+    });
+  } else {
+    db.collection('matches').add(m).then(function() {
+      liveId = null;
+      saveMeta();
+      clearForm();
+      toast('🏆 試合確定！登録しました！');
+    }).catch(function(e) { toast('❌ エラー: ' + e.message); });
+  }
+}
+
+function doEdit(btn) {
+  var id = btn.getAttribute('data-id');
+  for (var i = 0; i < matches.length; i++) {
+    if (String(matches[i].id) === id) { fillForm(matches[i]); break; }
+  }
+  document.getElementById('formTitle').textContent = '✏️ 試合を編集する';
+  switchTab('admin'); updatePreview(); window.scrollTo(0,0);
+}
+
+var pendingDeleteId = null;
+
+function doDelete(btn) {
+  var id = btn.getAttribute('data-id');
+  var match = null;
+  for (var i = 0; i < matches.length; i++) {
+    if (String(matches[i].id) === id) { match = matches[i]; break; }
+  }
+  pendingDeleteId = id;
+
+  // モーダルに試合情報を表示
+  var bodyEl = document.getElementById('deleteModalBody');
+  if (match) {
+    var dateStr = match.date ? new Date(match.date).toLocaleDateString('ja-JP') : '日付不明';
+    var scoreStr = (match.ht != null && match.at != null) ? (match.ht + ' - ' + match.at) : '';
+    var liveTag = match.live ? ' <span style="color:#e74c3c;font-size:0.7rem;">● LIVE中</span>' : '';
+    bodyEl.innerHTML =
+      '<div class="match-info">vs ' + (match.opp || '?') + liveTag + '</div>' +
+      '<div>' + (match.name || '') + '</div>' +
+      '<div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">' + dateStr +
+      (scoreStr ? '　/　スコア ' + scoreStr : '') + '</div>';
+  } else {
+    bodyEl.textContent = '選択した試合';
+  }
+
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function confirmDelete() {
+  var id = pendingDeleteId;
+  closeDeleteModal();
+  if (!id) return;
+  db.collection('matches').doc(id).delete().then(function() {
+    if (liveId === id) { liveId = null; saveMeta(); }
+    toast('🗑️ 削除しました');
+  }).catch(function(e) { toast('❌ エラー: ' + e.message); });
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  pendingDeleteId = null;
+}
+
+function doExcel() {
+  var done = [];
+  for (var i = 0; i < matches.length; i++) { if (!matches[i].live) done.push(matches[i]); }
+  if (done.length === 0) { toast('⚠️ 確定済みの試合がありません'); return; }
+  var rows = [], wins=0, loses=0, draws=0;
+  for (var i = 0; i < done.length; i++) {
+    var m = done[i];
+    var d = m.date ? new Date(m.date).toLocaleDateString('ja-JP') : '';
+    var r = m.ht > m.at ? '勝' : m.ht < m.at ? '負' : '引き分け';
+    if (m.ht > m.at) wins++; else if (m.ht < m.at) loses++; else draws++;
+    rows.push({ '日付':d, '大会名':m.name, '場所':m.place||'', '対戦相手':m.opp,
+      '1Q(我)':m.hq[0], '1Q(相)':m.aq[0], '2Q(我)':m.hq[1]-m.hq[0], '2Q(相)':m.aq[1]-m.aq[0],
+      '3Q(我)':m.hq[2]-m.hq[1], '3Q(相)':m.aq[2]-m.aq[1], '4Q(我)':m.hq[3]-m.hq[2], '4Q(相)':m.aq[3]-m.aq[2],
+      '合計(我)':m.ht, '合計(相)':m.at, '結果':r });
+  }
+  rows.push({});
+  rows.push({ '日付':'【集計】', '大会名':done.length+'試合', '対戦相手':wins+'勝 '+loses+'敗 '+draws+'分' });
+  var ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:12},{wch:20},{wch:16},{wch:18},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:9},{wch:9},{wch:8}];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '試合結果');
+  XLSX.writeFile(wb, '上市ミラクルズ試合結果_'+new Date().getFullYear()+'.xlsx');
+  toast('📊 Excelを出力しました！');
+}
+
+function render() {
+  var list = document.getElementById('matchList');
+  var statsRow = document.getElementById('statsRow');
+  var done = [], wins=0, loses=0, draws=0;
+  for (var i = 0; i < matches.length; i++) {
+    if (!matches[i].live) {
+      done.push(matches[i]);
+      if (matches[i].ht > matches[i].at) wins++;
+      else if (matches[i].ht < matches[i].at) loses++;
+      else draws++;
+    }
+  }
+  statsRow.innerHTML =
+    '<div class="stat-card"><div class="stat-num">'+done.length+'</div><div class="stat-label">試合数</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#66BB6A">'+wins+'</div><div class="stat-label">WIN</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#FFE0B2">'+loses+'</div><div class="stat-label">LOSE</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#ffffff">'+draws+'</div><div class="stat-label">DRAW</div></div>';
+
+  if (matches.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><div class="empty-text">試合結果がまだありません</div></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < matches.length; i++) {
+    var m = matches[i];
+    var live = m.live, win = m.ht > m.at, draw = m.ht === m.at;
+    var bClass = live ? 'badge-live' : win ? 'badge-win' : draw ? 'badge-draw' : 'badge-lose';
+    var bText  = live ? '<span class="dot"></span>LIVE' : win ? 'WIN' : draw ? 'DRAW' : 'LOSE';
+    var dateStr = '';
+    if (m.date) { var dd = new Date(m.date); dateStr = dd.getFullYear()+'年'+(dd.getMonth()+1)+'月'+dd.getDate()+'日'; }
+    var qs = '';
+    for (var q = 0; q < 4; q++) {
+      var hScore = q === 0 ? m.hq[0] : m.hq[q] - m.hq[q-1];
+      var aScore = q === 0 ? m.aq[0] : m.aq[q] - m.aq[q-1];
+      if (m.hq[q] === 0 && m.aq[q] === 0 && q > 0) { hScore = 0; aScore = 0; }
+      qs += '<div class="q-detail-item"><span class="q-detail-label">'+(q+1)+'Q</span>'+
+            '<div class="q-detail-score">'+hScore+'<span> - </span>'+aScore+'</div></div>';
+    }
+    var footer = '';
+    if (isAdmin) {
+      var mid = m.id;
+      footer = '<div class="card-footer">' +
+        '<button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:0.7rem;padding:6px 12px" onclick="doEdit(this)" data-id="' + mid + '">✏️ 編集</button>' +
+        '<button class="btn" style="background:var(--red);color:#fff;font-size:0.7rem;padding:6px 12px" onclick="doDelete(this)" data-id="' + mid + '">🗑️ 削除</button>' +
+        '</div>';
+    }
+        html +=
+      '<div class="match-card'+(live?' is-live':'')+'">' +
+        '<div class="card-header'+(live?' is-live':'')+'">' +
+          '<div><div class="card-title">'+m.name+'</div>'+
+          '<div class="card-meta">📅 '+dateStr+'　📍 '+(m.place||'—')+'</div></div>'+
+          '<div class="result-badge '+bClass+'">'+bText+'</div>'+
+        '</div>'+
+        '<div class="card-body">'+
+          '<div class="score-area">'+
+            '<div class="score-row">'+
+              '<div class="score-team">'+
+                '<div class="score-team-name">Miracles</div>'+
+                '<div class="score-num'+(win?' winner':'')+'">'+m.ht+'</div>'+
+              '</div>'+
+              '<div class="score-divider"><div class="score-line"></div><div class="score-vs">VS</div><div class="score-line"></div></div>'+
+              '<div class="score-team">'+
+                '<div class="score-team-name">'+m.opp+'</div>'+
+                '<div class="score-num'+(!win&&!draw?' winner':'')+'">'+m.at+'</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="q-detail-grid">'+qs+'</div>'+
+        '</div>'+
+        footer+
+      '</div>';
+  }
+  list.innerHTML = html;
+}
+
+loadData();
+
+// HTMLのonclickから呼べるようにグローバルに登録
+window.switchTab = switchTab;
+window.checkGateCode = checkGateCode;
+  window.lockApp = lockApp;
+window.doLive = doLive;
+window.doConfirm = doConfirm;
+window.doEdit = doEdit;
+window.doDelete = doDelete;
+window.doExcel = doExcel;
+window.updatePreview = updatePreview;
+  window.validateQScores = validateQScores;
+
+// 削除確認モーダルのボタン設定
+document.getElementById('deleteModalConfirm').addEventListener('click', confirmDelete);
+document.getElementById('deleteModalCancel').addEventListener('click', closeDeleteModal);
+// オーバーレイクリックでキャンセル
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+// ESCキーでキャンセル
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('deleteModal').classList.contains('show')) {
+    closeDeleteModal();
+  }
+});
+}); // window.onload
+</script>
+
+<!-- ===== Service Worker 登録（自動更新検知） ===== -->
+<script>
+(function() {
+  if (!('serviceWorker' in navigator)) return;
+
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      console.log('[SW] Registered, scope:', reg.scope);
+
+      // 既に待機中のSWがあれば即通知
+      if (reg.waiting) {
+        showUpdateBanner(reg.waiting);
+      }
+
+      // 新しいSWが見つかったとき
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener('statechange', function() {
+          // 新SWがインストール済み & 既存SWが動作中 = 更新あり
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner(newSW);
+          }
+        });
+      });
+
+      // 1時間ごとに更新チェック（PWAを開きっぱなしの場合）
+      setInterval(function() { reg.update(); }, 60 * 60 * 1000);
+    }).catch(function(err) {
+      console.warn('[SW] Registration failed:', err);
+    });
+
+    // 新SW有効化後、自動でリロード（1ページにつき1回だけ）
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  });
+
+  // 更新バナーを表示し、タップで新SWを有効化
+  function showUpdateBanner(waitingSW) {
+    var banner = document.getElementById('updateBanner');
+    if (!banner) return;
+    banner.classList.add('show');
+    banner.addEventListener('click', function() {
+      banner.textContent = '更新中...';
+      // 新SWに「待機解除して有効化して」と指示
+      waitingSW.postMessage({ type: 'SKIP_WAITING' });
+      // controllerchange イベントで自動リロードされる
+    }, { once: true });
+  }
+})();
+</script>
+</body>
+</html>
