@@ -404,22 +404,44 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 
 /* 区切り線 */
 .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:14px 0; }
+
+/* ===== コード入力ゲート（チームアプリ準拠デザイン） ===== */
+.pw-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#ffffff; padding:24px; }
+.pw-box { border:1px solid #E63946; border-radius:20px; padding:36px 28px; text-align:center; width:300px; max-width:100%; background:#ffffff; box-shadow:0 4px 24px rgba(0,0,0,0.12); }
+.pw-title { color:#E63946; font-size:21px; font-weight:900; margin-bottom:4px; font-family:'Bebas Neue',sans-serif; letter-spacing:2px; }
+.pw-sub { color:#777; font-size:13px; margin-bottom:20px; }
+.pin-disp { font-size:32px; letter-spacing:16px; color:#111; margin:12px 0; min-height:40px; font-family:'Bebas Neue',sans-serif; }
+.pin-err { color:#C0392B; font-size:13px; min-height:18px; margin-bottom:8px; }
+.np { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.np-btn { all:unset; display:block; padding:14px; font-size:22px; font-weight:700; border-radius:10px; background-color:#E63946; color:#ffffff; cursor:pointer; text-align:center; font-family:'Noto Sans JP',sans-serif; }
+.np-btn:active { background-color:#FF6B6B; }
 </style>
 </head>
 <body>
 
+<!-- ===== スプラッシュ画面 ===== -->
+<div id="splashScreen" style="position:fixed;inset:0;background:#111111;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:background-color 1s ease;">
+  <div style="width:120px;height:120px;border-radius:26px;overflow:hidden;margin-bottom:22px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;">
+  </div>
+  <div style="color:#ffffff;font-size:26px;font-weight:900;letter-spacing:4px;font-family:'Bebas Neue',sans-serif;">MIRACLES</div>
+  <div style="color:#E63946;font-size:12px;font-weight:700;letter-spacing:3px;margin-top:8px;">SCORE BOARD · KAMIICHI</div>
+</div>
+
 <!-- ===== コード入力ゲート（起動時に必ず表示） ===== -->
-<div id="gateOverlay" style="position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#B71C1C 0%,#E63946 55%,#8a0000 100%);">
-  <div style="max-width:300px;width:100%;text-align:center;">
-    <svg width="76" height="76" viewBox="0 0 64 64" style="margin:0 auto 18px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="1" width="62" height="62" rx="14" fill="rgba(255,255,255,0.12)" stroke="#ffffff" stroke-width="2"/>
-      <text x="32" y="42" font-family="'Bebas Neue',sans-serif" font-size="30" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
-    </svg>
-    <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:4px;color:#ffffff;font-size:1rem;margin-bottom:4px;">KAMIICHI MIRACLES</div>
-    <div style="font-size:0.68rem;color:rgba(255,255,255,0.8);letter-spacing:2px;margin-bottom:24px;">SCORE BOARD</div>
-    <input type="password" id="gateInput" inputmode="numeric" placeholder="コードを入力" style="text-align:center;font-size:1.3rem;letter-spacing:6px;background:rgba(255,255,255,0.95);border:none;border-radius:8px;padding:14px 12px;width:100%;color:#111;" onkeydown="if(event.key==='Enter')checkGateCode()">
-    <div id="gateError" style="display:none;color:#FFE0B2;font-size:0.75rem;margin-top:10px;letter-spacing:1px;">⚠️ コードが正しくありません</div>
-    <button onclick="checkGateCode()" style="margin-top:18px;width:100%;padding:13px;border-radius:8px;border:1px solid #999;background:#ffffff;color:#111;font-weight:900;font-size:0.9rem;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">入場する</button>
+<div class="pw-screen" id="pwScreen" style="display:none;">
+  <div class="pw-box">
+    <div style="width:64px;height:64px;border-radius:10px;background:#E63946;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;padding:4px;box-sizing:border-box;"><img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+    <div class="pw-title">MIRACLES</div>
+    <div class="pw-sub">パスワードを入力してください</div>
+    <div class="pin-disp" id="pinDisp">- - - -</div>
+    <div class="pin-err" id="pinErr"></div>
+    <div class="np">
+      <button class="np-btn" onclick="inp('1')">1</button><button class="np-btn" onclick="inp('2')">2</button><button class="np-btn" onclick="inp('3')">3</button>
+      <button class="np-btn" onclick="inp('4')">4</button><button class="np-btn" onclick="inp('5')">5</button><button class="np-btn" onclick="inp('6')">6</button>
+      <button class="np-btn" onclick="inp('7')">7</button><button class="np-btn" onclick="inp('8')">8</button><button class="np-btn" onclick="inp('9')">9</button>
+      <button class="np-btn" onclick="clrPin()">C</button><button class="np-btn" onclick="inp('0')">0</button><button class="np-btn" onclick="bspPin()">⌫</button>
+    </div>
   </div>
 </div>
 
@@ -609,24 +631,37 @@ function toast(msg) {
   setTimeout(function() { el.classList.remove('show'); }, 2500);
 }
 
-// ===== コード入力ゲート（チーム管理アプリと同じ 1234 / 9999 方式） =====
-function checkGateCode() {
-  var code = document.getElementById('gateInput').value.trim();
-  var errEl = document.getElementById('gateError');
-  if (code === '9999') {
-    isAdmin = true;
-    unlockApp();
-  } else if (code === '1234') {
-    isAdmin = false;
+// ===== コード入力ゲート（チーム管理アプリと同じ数字キーパッド方式・1234 / 9999） =====
+var PASSWORDS = { view: '1234', admin: '9999' };
+var pin = '';
+
+function inp(n) {
+  if (pin.length >= 4) return;
+  pin += n;
+  updatePinDisp();
+  if (pin.length === 4) checkPin();
+}
+function clrPin() { pin = ''; updatePinDisp(); }
+function bspPin() { pin = pin.slice(0, -1); updatePinDisp(); }
+function updatePinDisp() {
+  document.getElementById('pinDisp').textContent = (pin + '----').slice(0, 4).split('').join(' ');
+}
+function checkPin() {
+  if (pin === PASSWORDS.view || pin === PASSWORDS.admin) {
+    isAdmin = (pin === PASSWORDS.admin);
     unlockApp();
   } else {
-    errEl.style.display = 'block';
-    document.getElementById('gateInput').value = '';
+    document.getElementById('pinErr').textContent = 'パスワードが違います';
+    setTimeout(function() {
+      pin = '';
+      updatePinDisp();
+      document.getElementById('pinErr').textContent = '';
+    }, 1000);
   }
 }
 
 function unlockApp() {
-  document.getElementById('gateOverlay').style.display = 'none';
+  document.getElementById('pwScreen').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
   document.getElementById('tab-admin').style.display = isAdmin ? '' : 'none';
   document.getElementById('adminPanel').style.display = isAdmin ? 'block' : 'none';
@@ -638,11 +673,33 @@ function unlockApp() {
 function lockApp() {
   isAdmin = false;
   editId = null;
-  document.getElementById('gateInput').value = '';
-  document.getElementById('gateError').style.display = 'none';
-  document.getElementById('gateOverlay').style.display = 'flex';
+  pin = '';
+  updatePinDisp();
+  document.getElementById('pinErr').textContent = '';
+  document.getElementById('pwScreen').style.display = 'flex';
   document.getElementById('appRoot').style.display = 'none';
 }
+
+// スプラッシュ：1秒表示 → 白くフェード（1秒）→ パスワード画面
+(function() {
+  function startSplash() {
+    var splash = document.getElementById('splashScreen');
+    var pw = document.getElementById('pwScreen');
+    if (!splash || !pw) return;
+    setTimeout(function() {
+      splash.style.backgroundColor = '#ffffff';
+      setTimeout(function() {
+        splash.style.display = 'none';
+        pw.style.display = 'flex';
+      }, 1000);
+    }, 1000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startSplash);
+  } else {
+    startSplash();
+  }
+})();
 
 function gv(id) { return document.getElementById(id).value.trim(); }
 function gn(id) { return parseInt(document.getElementById(id).value) || 0; }
@@ -912,7 +969,9 @@ loadData();
 
 // HTMLのonclickから呼べるようにグローバルに登録
 window.switchTab = switchTab;
-window.checkGateCode = checkGateCode;
+window.inp = inp;
+window.clrPin = clrPin;
+window.bspPin = bspPin;
   window.lockApp = lockApp;
 window.doLive = doLive;
 window.doConfirm = doConfirm;
