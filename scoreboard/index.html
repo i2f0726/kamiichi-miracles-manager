@@ -612,7 +612,7 @@ function saveData() {
 }
 
 function saveMeta() {
-  db.collection('meta').doc('state').set({ liveId: liveId });
+  db.collection('meta').doc('state').set({ liveId: liveId, adminKey: 'miracles2026' });
 }
 
 function switchTab(t) {
@@ -768,7 +768,7 @@ function buildMatch(isLive) {
   if (!name || !date || !opp) { toast('⚠️ 大会名・日付・対戦相手は必須です'); return null; }
   var hq = [gn('h1'),gn('h2'),gn('h3'),gn('h4')];
   var aq = [gn('a1'),gn('a2'),gn('a3'),gn('a4')];
-  return { id: editId || Date.now(), name:name, date:date, place:gv('fPlace'), opp:opp, hq:hq, aq:aq, ht:Math.max(hq[0],hq[1],hq[2],hq[3]), at:Math.max(aq[0],aq[1],aq[2],aq[3]), live:isLive };
+  return { id: editId || Date.now(), name:name, date:date, place:gv('fPlace'), opp:opp, hq:hq, aq:aq, ht:Math.max(hq[0],hq[1],hq[2],hq[3]), at:Math.max(aq[0],aq[1],aq[2],aq[3]), live:isLive, adminKey:'miracles2026' };
 }
 
 function doLive() {
