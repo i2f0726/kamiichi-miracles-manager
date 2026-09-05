@@ -7,7 +7,7 @@
 
 <!-- PWA設定（ホーム画面追加・全画面表示） -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#C0392B">
+<meta name="theme-color" content="#B10E44">
 
 <!-- iOS用：ホーム画面追加時の全画面表示・アイコン -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,13 +24,13 @@
   --forest: #EDEDED;
   --green:  #111111;
   --green2: #181818;
-  --gold:   #E63946;
-  --gold2:  #FF6B6B;
+  --gold:   #EC1560;
+  --gold2:  #FF5C93;
   --text:   #F0EAD6;
   --muted:  #7A8C6E;
   --card:   #0f0f0f;
   --border: #252525;
-  --red:    #C0392B;
+  --red:    #B10E44;
   --win:    #2E7D32;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -38,7 +38,7 @@ body { background:var(--forest); color:var(--text); font-family:'Noto Sans JP',s
 
 /* ヘッダー */
 header {
-  background: linear-gradient(160deg, #C0392B 0%, #E63946 55%, #B71C1C 100%);
+  background: linear-gradient(160deg, #B10E44 0%, #EC1560 55%, #7A0030 100%);
   border-bottom: 2px solid #ffffff;
   padding: 20px 16px 16px;
   text-align: center;
@@ -50,7 +50,7 @@ header {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2rem; letter-spacing: 6px;
   color: var(--gold);
-  text-shadow: 0 0 30px rgba(230,57,70,0.5), 0 2px 4px rgba(0,0,0,0.8);
+  text-shadow: 0 0 30px rgba(236,21,96,0.5), 0 2px 4px rgba(0,0,0,0.8);
   line-height: 1;
 }
 .logo-sub {
@@ -84,7 +84,7 @@ header {
   padding:10px 18px; font-weight:900; font-size:0.85rem;
   cursor:pointer; font-family:'Noto Sans JP',sans-serif;
   transition:all 0.2s; white-space:nowrap;
-  box-shadow: 0 2px 8px rgba(230,57,70,0.3);
+  box-shadow: 0 2px 8px rgba(236,21,96,0.3);
 }
 .btn:active { opacity:0.8; transform:scale(0.97); }
 
@@ -126,8 +126,8 @@ label { display:block; font-size:0.68rem; color:var(--muted); margin-bottom:4px;
 
 /* ライブプレビュー */
 .live-preview {
-  background: rgba(192,57,43,0.08);
-  border:1px solid rgba(192,57,43,0.35);
+  background: rgba(177,14,68,0.08);
+  border:1px solid rgba(177,14,68,0.35);
   border-radius:10px; padding:14px; margin-bottom:12px;
 }
 .live-preview-title { font-size:0.65rem; color:#e74c3c; letter-spacing:2px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
@@ -150,7 +150,7 @@ label { display:block; font-size:0.68rem; color:var(--muted); margin-bottom:4px;
 /* 管理者ヘッダー */
 .admin-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
 .admin-badge {
-  background: rgba(230,57,70,0.12);
+  background: rgba(236,21,96,0.12);
   border:1px solid var(--gold); color:var(--gold);
   font-size:0.65rem; padding:5px 12px; border-radius:100px; letter-spacing:1px;
 }
@@ -179,17 +179,17 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   animation: fadeIn 0.35s ease;
 }
 .match-card.is-live {
-  border-color: rgba(192,57,43,0.6);
-  box-shadow: 0 0 20px rgba(192,57,43,0.15);
+  border-color: rgba(177,14,68,0.6);
+  box-shadow: 0 0 20px rgba(177,14,68,0.15);
 }
 @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
 .card-header {
-  background: linear-gradient(90deg, rgba(230,57,70,0.10), transparent);
+  background: linear-gradient(90deg, rgba(236,21,96,0.10), transparent);
   padding:13px 16px; border-bottom:1px solid var(--border);
   display:flex; justify-content:space-between; align-items:flex-start;
 }
-.card-header.is-live { background:linear-gradient(90deg, rgba(192,57,43,0.15), transparent); }
+.card-header.is-live { background:linear-gradient(90deg, rgba(177,14,68,0.15), transparent); }
 .card-title { font-size:0.95rem; font-weight:900; color:var(--text); }
 .card-meta { font-size:0.65rem; color:var(--muted); margin-top:3px; }
 
@@ -199,9 +199,9 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   display:flex; align-items:center; gap:4px;
 }
 .badge-win  { background:rgba(46,125,50,0.25); color:#66BB6A; border:1px solid rgba(46,125,50,0.4); }
-.badge-lose { background:rgba(192,57,43,0.2);  color:#EF5350; border:1px solid rgba(192,57,43,0.4); }
-.badge-draw { background:rgba(230,57,70,0.15); color:var(--gold); border:1px solid rgba(230,57,70,0.3); }
-.badge-live { background:rgba(192,57,43,0.2);   color:#e74c3c; border:1px solid rgba(192,57,43,0.4); }
+.badge-lose { background:rgba(177,14,68,0.2);  color:#EF5350; border:1px solid rgba(177,14,68,0.4); }
+.badge-draw { background:rgba(236,21,96,0.15); color:var(--gold); border:1px solid rgba(236,21,96,0.3); }
+.badge-live { background:rgba(177,14,68,0.2);   color:#e74c3c; border:1px solid rgba(177,14,68,0.4); }
 
 .card-body { padding:16px; }
 
@@ -238,7 +238,7 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 .score-team { flex:1; text-align:center; }
 .score-team-name { font-size:0.75rem; color:#333333; margin-bottom:6px; letter-spacing:2px; text-transform:uppercase; font-weight:900; }
 .score-num { font-family:'Bebas Neue',sans-serif; font-size:4.5rem; line-height:1; color:#111111; }
-.score-num.winner { color:#C0392B; text-shadow:none; }
+.score-num.winner { color:#B10E44; text-shadow:none; }
 .score-divider { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .score-vs { font-family:'Bebas Neue',sans-serif; font-size:0.85rem; color:#888888; letter-spacing:2px; }
 .score-line { width:1px; height:40px; background:#cccccc; }
@@ -252,7 +252,7 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   border:1px solid #ddd; border-radius:8px;
   padding:8px 4px; text-align:center;
 }
-.q-detail-label { font-size:0.58rem; color:#C0392B; font-weight:700; display:block; margin-bottom:4px; letter-spacing:1px; }
+.q-detail-label { font-size:0.58rem; color:#B10E44; font-weight:700; display:block; margin-bottom:4px; letter-spacing:1px; }
 .q-detail-score { font-size:0.8rem; font-weight:700; color:#111111; }
 .q-detail-score span { color:#888888; font-weight:400; }
 
@@ -276,7 +276,7 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   font-size:0.8rem; font-weight:900;
   transition:transform 0.3s; z-index:9999;
   white-space:nowrap; pointer-events:none;
-  box-shadow:0 4px 16px rgba(230,57,70,0.4);
+  box-shadow:0 4px 16px rgba(236,21,96,0.4);
 }
 .toast.show { transform:translateX(-50%) translateY(0); }
 
@@ -298,7 +298,7 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   border-radius:16px;
   max-width:380px; width:100%;
   padding:24px 20px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(230,57,70,0.2);
+  box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(236,21,96,0.2);
   animation: slideUp 0.25s ease-out;
 }
 .modal-icon {
@@ -360,9 +360,9 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 .modal-btn-confirm {
   background:linear-gradient(135deg, var(--red), #d44a3b);
   color:#fff;
-  box-shadow:0 4px 12px rgba(192,57,43,0.4);
+  box-shadow:0 4px 12px rgba(177,14,68,0.4);
 }
-.modal-btn-confirm:hover { box-shadow:0 6px 16px rgba(192,57,43,0.6); }
+.modal-btn-confirm:hover { box-shadow:0 6px 16px rgba(177,14,68,0.6); }
 
 @keyframes fadeIn {
   from { opacity:0; }
@@ -407,14 +407,14 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 
 /* ===== コード入力ゲート（チームアプリ準拠デザイン） ===== */
 .pw-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#ffffff; padding:24px; }
-.pw-box { border:1px solid #E63946; border-radius:20px; padding:36px 28px; text-align:center; width:300px; max-width:100%; background:#ffffff; box-shadow:0 4px 24px rgba(0,0,0,0.12); }
-.pw-title { color:#E63946; font-size:21px; font-weight:900; margin-bottom:4px; font-family:'Bebas Neue',sans-serif; letter-spacing:2px; }
+.pw-box { border:1px solid #EC1560; border-radius:20px; padding:36px 28px; text-align:center; width:300px; max-width:100%; background:#ffffff; box-shadow:0 4px 24px rgba(0,0,0,0.12); }
+.pw-title { color:#EC1560; font-size:21px; font-weight:900; margin-bottom:4px; font-family:'Bebas Neue',sans-serif; letter-spacing:2px; }
 .pw-sub { color:#777; font-size:13px; margin-bottom:20px; }
 .pin-disp { font-size:32px; letter-spacing:16px; color:#111; margin:12px 0; min-height:40px; font-family:'Bebas Neue',sans-serif; }
-.pin-err { color:#C0392B; font-size:13px; min-height:18px; margin-bottom:8px; }
+.pin-err { color:#B10E44; font-size:13px; min-height:18px; margin-bottom:8px; }
 .np { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.np-btn { all:unset; display:block; padding:14px; font-size:22px; font-weight:700; border-radius:10px; background-color:#E63946; color:#ffffff; cursor:pointer; text-align:center; font-family:'Noto Sans JP',sans-serif; }
-.np-btn:active { background-color:#FF6B6B; }
+.np-btn { all:unset; display:block; padding:14px; font-size:22px; font-weight:700; border-radius:10px; background-color:#EC1560; color:#ffffff; cursor:pointer; text-align:center; font-family:'Noto Sans JP',sans-serif; }
+.np-btn:active { background-color:#FF5C93; }
 </style>
 </head>
 <body>
@@ -425,13 +425,13 @@ header .stat-label { color:rgba(255,255,255,0.85); }
     <img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;">
   </div>
   <div style="color:#ffffff;font-size:26px;font-weight:900;letter-spacing:4px;font-family:'Bebas Neue',sans-serif;">MIRACLES</div>
-  <div style="color:#E63946;font-size:12px;font-weight:700;letter-spacing:3px;margin-top:8px;">SCORE BOARD · KAMIICHI</div>
+  <div style="color:#EC1560;font-size:12px;font-weight:700;letter-spacing:3px;margin-top:8px;">SCORE BOARD · KAMIICHI</div>
 </div>
 
 <!-- ===== コード入力ゲート（起動時に必ず表示） ===== -->
 <div class="pw-screen" id="pwScreen" style="display:none;">
   <div class="pw-box">
-    <div style="width:64px;height:64px;border-radius:10px;background:#E63946;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;padding:4px;box-sizing:border-box;"><img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
+    <div style="width:64px;height:64px;border-radius:10px;background:#EC1560;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;padding:4px;box-sizing:border-box;"><img src="icon-180.png" alt="上市ミラクルズ" style="width:100%;height:100%;object-fit:contain;display:block;"></div>
     <div class="pw-title">MIRACLES</div>
     <div class="pw-sub">パスワードを入力してください</div>
     <div class="pin-disp" id="pinDisp">- - - -</div>
@@ -449,11 +449,11 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 <div id="appRoot" style="display:none">
 <header style="padding:12px 16px;text-align:left;">
   <div style="display:flex;align-items:center;gap:16px;">
-    <svg width="64" height="64" viewBox="0 0 64 64" style="flex-shrink:0;filter:drop-shadow(0 0 8px rgba(230,57,70,0.5));" xmlns="http://www.w3.org/2000/svg">
+    <svg width="64" height="64" viewBox="0 0 64 64" style="flex-shrink:0;filter:drop-shadow(0 0 8px rgba(236,21,96,0.5));" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="miraclesBadge" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#E63946"/>
-          <stop offset="100%" stop-color="#B71C1C"/>
+          <stop offset="0%" stop-color="#EC1560"/>
+          <stop offset="100%" stop-color="#7A0030"/>
         </linearGradient>
       </defs>
       <rect x="1" y="1" width="62" height="62" rx="14" fill="url(#miraclesBadge)" stroke="#ffffff" stroke-width="2"/>
@@ -522,7 +522,7 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 
       <div class="q-block">
         <div class="q-block-title">クォーター別得点</div>
-        <div id="qError" style="display:none;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.5);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.75rem;color:#EF5350;letter-spacing:1px;"></div>
+        <div id="qError" style="display:none;background:rgba(177,14,68,0.15);border:1px solid rgba(177,14,68,0.5);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:0.75rem;color:#EF5350;letter-spacing:1px;"></div>
         <div style="margin-bottom:12px">
           <label style="margin-bottom:8px;color:var(--gold)">✨ 上市ミラクルズ（累計スコア）</label>
           <div class="q-grid">
