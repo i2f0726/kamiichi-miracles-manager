@@ -690,11 +690,10 @@ function unlockApp() {
 function lockApp() {
   isAdmin = false;
   editId = null;
-  pin = '';
-  updatePinDisp();
-  document.getElementById('pinErr').textContent = '';
-  document.getElementById('pwScreen').style.display = 'flex';
-  document.getElementById('appRoot').style.display = 'none';
+  applyAdminUI();
+  switchTab('view');
+  render();
+  toast('👋 閲覧モードに戻りました');
 }
 
 // ===== 閲覧モード → 管理者モードへの切り替え（ミニPINポップアップ） =====
