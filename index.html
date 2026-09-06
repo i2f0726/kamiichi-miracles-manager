@@ -1628,7 +1628,7 @@ function renderDowRow(){
         const t=`${set.start||''}${set.end?'〜'+set.end:''}`;
         inner+=`<div class="cal-dow-time">${t}</div>`;
       }
-      if(set.duty && DUTY_INFO[set.duty]){
+      if(isAdmin && set.duty && DUTY_INFO[set.duty]){
         inner+=`<div class="cal-dow-duty-label">${DUTY_INFO[set.duty].label}</div>`;
       }
     } else if(isAdmin){
