@@ -6,7 +6,7 @@
 
 // バージョン番号: index.htmlを更新したらこの数字を上げる
 // （これだけで全ユーザーが自動的に最新版になります）
-const CACHE_VERSION = '2026-09-06-1023';
+const CACHE_VERSION = '2026-09-06-2016';
 const CACHE_NAME = `miracles-${CACHE_VERSION}`;
 
 // オフライン時にも見られるようにキャッシュするファイル
