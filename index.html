@@ -1622,7 +1622,7 @@ function renderDowRow(){
     const adminClick=isAdmin?`onclick="openDowSetModal(${i})"`:'';
     const adminCursor=isAdmin?'cursor:pointer;':'';
     let inner=`<div style="font-weight:700;font-size:13px;">${DOW_NAMES[i]}</div>`;
-    if(hasSet){
+    if(hasSet && isAdmin){
       if(set.place) inner+=`<div class="cal-dow-place">${escapeHtml(set.place)}</div>`;
       if(set.start || set.end){
         const t=`${set.start||''}${set.end?'〜'+set.end:''}`;
@@ -1631,9 +1631,10 @@ function renderDowRow(){
       if(set.duty && DUTY_INFO[set.duty]){
         inner+=`<div class="cal-dow-duty-label">${DUTY_INFO[set.duty].label}</div>`;
       }
-    } else if(isAdmin){
+    } else if(!hasSet && isAdmin){
       inner+=`<div style="font-size:10px;color:var(--color-text-secondary);">タップで設定</div>`;
     }
+    // 閲覧モードでは場所・時間・当番ラベルを非表示（曜日名のみ表示）
     html+=`<div class="cal-dow-cell cal-dow-cell-set" style="${adminCursor}" ${adminClick}>${inner}</div>`;
   }
   row.innerHTML=html;
