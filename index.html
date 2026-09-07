@@ -1668,7 +1668,7 @@ function renderCalendar(){
       if(e.duty && e.duty.length){
         const info=DUTY_INFO[e.dutyType];
         if(info){
-          const names=e.duty.filter(n=>n).map(n=>extractLastName(n)).join('/');
+          const names=e.duty.filter(n=>n).join('/');
           if(names) dutyHtml+=`<div class="cal-day-duty" title="${info.label}：${e.duty.filter(n=>n).join('・')}">${info.short}${names}</div>`;
         }
       }
