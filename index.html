@@ -241,6 +241,23 @@ if ('serviceWorker' in navigator) {
   .pop-overlay.open { display:flex; }
   .pop-overlay .modal { margin:auto; max-width:420px; width:100%; position:relative; z-index:10000; background:#ffffff; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
   .modal { background:var(--color-background-primary); border-radius:14px; padding:20px; border:1px solid var(--theme-main); margin:12px; box-sizing:border-box; }
+  .help-modal .modal { max-width:560px; max-height:88vh; display:flex; flex-direction:column; padding:0; }
+  .help-header { padding:18px 20px 14px; border-bottom:1px solid var(--color-border-tertiary); }
+  .help-header h3 { margin:0; color:var(--theme-main); font-size:19px; }
+  .help-body { overflow-y:auto; padding:16px 20px 20px; }
+  .help-body h4 { color:var(--theme-main); font-size:15px; margin:22px 0 8px; border-left:4px solid var(--theme-main); padding-left:8px; }
+  .help-body h4:first-child { margin-top:0; }
+  .help-body p, .help-body li { color:var(--color-text-primary); font-size:13.5px; line-height:1.7; }
+  .help-body ul { margin:4px 0 10px; padding-left:20px; }
+  .help-body .help-tip { background:var(--color-background-tertiary); border-radius:8px; padding:8px 12px; font-size:12.5px; color:var(--color-text-secondary); margin:8px 0; }
+  .help-body .admin-tag { display:inline-block; background:var(--theme-main); color:var(--theme-text-on); font-size:10.5px; font-weight:700; border-radius:10px; padding:2px 8px; margin-left:6px; vertical-align:middle; }
+  .help-body table { width:100%; border-collapse:collapse; margin:8px 0 14px; font-size:12.5px; }
+  .help-body table th, .help-body table td { border:1px solid var(--color-border-tertiary); padding:6px 8px; text-align:left; color:var(--color-text-primary); }
+  .help-body table th { background:var(--color-background-tertiary); }
+  .help-footer { padding:12px 20px; border-top:1px solid var(--color-border-tertiary); }
+  .help-img-row { display:flex; gap:10px; overflow-x:auto; margin:6px 0 14px; padding-bottom:2px; }
+  .help-img-row a { flex:0 0 auto; }
+  .help-img { display:block; height:220px; width:auto; border-radius:10px; border:1px solid var(--color-border-tertiary); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
   .modal h3 { font-size:18px; font-weight:700; margin-bottom:4px; color:var(--color-text-primary); }
   .modal label { font-size:14px; color:var(--color-text-secondary); display:block; margin-bottom:4px; margin-top:10px; }
   .modal input, .modal select, .modal textarea { width:100%; padding:9px 12px; border:0.5px solid var(--color-border-secondary); border-radius:8px; background:var(--color-background-secondary); color:var(--color-text-primary); font-size:15px; font-family:inherit; box-sizing:border-box; }
@@ -365,6 +382,7 @@ if ('serviceWorker' in navigator) {
         </div>
       </div>
       <div class="header-right">
+        <button class="admin-btn-header" id="helpBtn" onclick="openHelp()">❔ 使い方</button>
         <button class="admin-btn-header" id="pwChangeBtn" onclick="openPwChange()" style="display:none;">🔑 PW変更</button>
         <button class="admin-btn-header" id="adminBtn" onclick="toggleAdmin()">🔒 管理者ログイン</button>
       </div>
@@ -629,6 +647,128 @@ if ('serviceWorker' in navigator) {
     </div>
     <div style="padding:14px;background:var(--color-background-tertiary);" id="infoList">
       <div style="text-align:center;padding:40px 0;color:var(--color-text-secondary);font-size:18px;">インフォメーションはありません</div>
+    </div>
+  </div>
+
+  <!-- 使い方モーダル -->
+  <div class="pop-overlay help-modal" id="helpModal">
+    <div class="modal">
+      <div class="help-header"><h3>❔ アプリの使い方</h3></div>
+      <div class="help-body">
+
+        <h4>📱 ホーム画面への追加方法</h4>
+        <p><b>iPhone（Safari）の場合</b></p>
+        <ul>
+          <li>このアプリをSafariで開く</li>
+          <li>画面下の「共有」ボタン（□に↑のマーク）をタップ</li>
+          <li>メニューから「ホーム画面に追加」を選ぶ</li>
+          <li>名前を確認して「追加」をタップ</li>
+        </ul>
+        <p><b>Android（Chrome）の場合</b></p>
+        <ul>
+          <li>このアプリをChromeで開く</li>
+          <li>右上の「︙」メニューをタップ</li>
+          <li>「ホーム画面に追加」を選ぶ</li>
+          <li>「アプリのインストール」と「ショートカット」の選択画面が出たら、「アプリのインストール」を選ぶ</li>
+        </ul>
+        <div class="help-tip">💡 「ショートカット」を選ぶと、ブラウザのアドレスバーなどが表示された簡易的な見た目になり、アイコンや起動時の挙動が正しく反映されません。必ず「アプリのインストール」を選んでください。一度追加すると、次回からはホーム画面のアイコンをタップするだけで開けます。</div>
+
+        <h4>🔐 パスワードについて</h4>
+        <table>
+          <tr><th>区分</th><th>できること</th></tr>
+          <tr><td>閲覧用パスワード</td><td>日程・お知らせ・選手名簿を見るだけ（保護者の方はこちら）</td></tr>
+          <tr><td>管理者用パスワード</td><td>閲覧に加えて、予定の追加・編集・削除、お知らせの投稿、選手情報の編集ができる</td></tr>
+        </table>
+        <div class="help-tip">💡 パスワードはチーム内での案内をご確認ください。</div>
+        <div class="help-img-row"><a href="help-images/help-login-view.jpg" target="_blank"><img class="help-img" src="help-images/help-login-view.jpg" alt="ログイン画面" loading="lazy"></a><a href="help-images/help-login-admin.jpg" target="_blank"><img class="help-img" src="help-images/help-login-admin.jpg" alt="管理者パスワード入力" loading="lazy"></a></div>
+
+        <h4>🗂 画面の構成</h4>
+        <table>
+          <tr><th>タブ</th><th>内容</th></tr>
+          <tr><td>📅 日程</td><td>カレンダー形式の予定表。練習・練習試合・大会などの予定を確認できる</td></tr>
+          <tr><td>📢 INFO</td><td>監督・コーチ・保護者会からのお知らせ一覧</td></tr>
+          <tr><td>🏀 選手管理</td><td>選手名簿、ボール番号・ビブス番号の検索、チーム全体の統計</td></tr>
+        </table>
+        <div class="help-img-row"><a href="help-images/help-header-tabs.jpg" target="_blank"><img class="help-img" src="help-images/help-header-tabs.jpg" alt="ヘッダーとタブ" loading="lazy"></a></div>
+
+        <h4>📅 日程タブの使い方</h4>
+        <p><b>見る（全員共通）</b></p>
+        <ul>
+          <li>カレンダーの日付をタップすると、その日の予定が下に表示されます</li>
+          <li>予定に「📍」マークがある場合はタップするとGoogleマップが開きます</li>
+          <li>当番（🔑鍵当番・🥅ゴール当番）が設定されている曜日は、担当者が表示されます</li>
+          <li>カレンダー上部の「📌今月のお知らせ」には、荷物当番など月ごとの固定連絡事項が表示されます</li>
+        </ul>
+        <div class="help-img-row"><a href="help-images/help-schedule-view.jpg" target="_blank"><img class="help-img" src="help-images/help-schedule-view.jpg" alt="日程タブ" loading="lazy"></a><a href="help-images/help-schedule-detail.jpg" target="_blank"><img class="help-img" src="help-images/help-schedule-detail.jpg" alt="予定の詳細表示" loading="lazy"></a></div>
+        <p><b>予定を追加・編集する<span class="admin-tag">管理者のみ</span></b></p>
+        <ul>
+          <li>カレンダーの日付をタップ →「＋予定を追加」から入力</li>
+          <li>種別（練習／練習試合／大会／その他）、タイトル、時間、場所、目的地、メモを入力して保存</li>
+          <li>目的地を入力しておくと、保護者側でGoogleマップのリンクが表示される</li>
+          <li>既存の予定をタップすると編集・削除ができる</li>
+        </ul>
+        <div class="help-img-row"><a href="help-images/help-schedule-add.jpg" target="_blank"><img class="help-img" src="help-images/help-schedule-add.jpg" alt="予定を追加ポップアップ" loading="lazy"></a></div>
+        <p><b>曜日ごとの固定設定<span class="admin-tag">管理者のみ</span></b></p>
+        <p>毎週決まった曜日・時間・会場で活動がある場合、カレンダーの曜日見出し（例：火曜日）から固定の会場・時間・当番を設定できます。一度設定すると、その曜日の予定入力時に当番欄が自動で表示されます。</p>
+        <div class="help-tip">💡 当番欄の候補名は「選手管理」タブに登録されている選手データから自動で表示されます。当番を割り当てる前に選手管理タブで選手を登録しておいてください。</div>
+        <div class="help-img-row"><a href="help-images/help-dow-duty.jpg" target="_blank"><img class="help-img" src="help-images/help-dow-duty.jpg" alt="曜日見出しの当番ラベル" loading="lazy"></a></div>
+        <p><b>月ごとのお知らせ<span class="admin-tag">管理者のみ</span></b></p>
+        <p>「📌今月のお知らせ」の「編集」から、その月だけ表示される固定のお知らせ（荷物当番の担当者一覧など）を入力できます。空欄で保存すると未設定に戻ります。</p>
+        <div class="help-img-row"><a href="help-images/help-monthly-msg.jpg" target="_blank"><img class="help-img" src="help-images/help-monthly-msg.jpg" alt="月のお知らせ編集" loading="lazy"></a></div>
+        <p><b>Excel出力<span class="admin-tag">管理者のみ</span></b></p>
+        <p>カレンダー右上の「📊Excel出力」から、期間を指定して予定一覧をExcelファイルとしてダウンロードできます。</p>
+
+        <h4>📢 INFOタブの使い方</h4>
+        <p><b>見る（全員共通）</b></p>
+        <p>監督・コーチ・保護者会からのお知らせが新しい順に並びます。</p>
+        <div class="help-img-row"><a href="help-images/help-info-detail.jpg" target="_blank"><img class="help-img" src="help-images/help-info-detail.jpg" alt="INFOタブ詳細表示" loading="lazy"></a></div>
+        <p><b>投稿する<span class="admin-tag">管理者のみ</span></b></p>
+        <ul>
+          <li>「＋インフォ投稿」から投稿者（監督／コーチ／保護者会）、タイトル、内容を入力して投稿</li>
+          <li>投稿済みのお知らせをタップすると編集・削除ができる</li>
+        </ul>
+        <div class="help-img-row"><a href="help-images/help-info-post.jpg" target="_blank"><img class="help-img" src="help-images/help-info-post.jpg" alt="インフォ投稿ポップアップ" loading="lazy"></a></div>
+
+        <h4>🏀 選手管理タブの使い方</h4>
+        <p><b>見る（全員共通）</b></p>
+        <ul>
+          <li>画面上部にチーム全体の人数・平均身長・学年ごとの人数が表示されます</li>
+          <li>「🏀チームボール番号検索」「🦺ビブス番号検索」に番号を入力してEnter（または🔍）を押すと、該当する選手を検索できます</li>
+          <li>学年ボタンで絞り込み、並び替え（学年順／背番号順／ボール番号順／ビブス番号順）も可能です</li>
+          <li>選手カードをタップすると詳細（写真・身長・番号など）が確認できます</li>
+        </ul>
+        <div class="help-img-row"><a href="help-images/help-players-admin.jpg" target="_blank"><img class="help-img" src="help-images/help-players-admin.jpg" alt="選手管理タブ" loading="lazy"></a></div>
+        <p><b>選手を追加・編集する<span class="admin-tag">管理者のみ</span></b></p>
+        <ul>
+          <li>「＋選手追加」から氏名・ローマ字・学年・背番号・身長・ビブス番号・ボール番号・写真を入力</li>
+          <li>既存の選手カードをタップ →「✏️編集」から内容を変更、「🗑️削除」で削除</li>
+          <li>写真は選択すると自動で圧縮されるので、そのまま選ぶだけでOK</li>
+        </ul>
+        <div class="help-img-row"><a href="help-images/help-player-add.jpg" target="_blank"><img class="help-img" src="help-images/help-player-add.jpg" alt="選手を追加ポップアップ" loading="lazy"></a></div>
+        <p><b>新年度の一括進級<span class="admin-tag">管理者のみ</span></b></p>
+        <p>「🎓新年度一括進級」を押すと、6年生（最上級生）の選手データは自動的にすべて削除され（写真も含む）、1〜5年生は学年がそれぞれ1つ繰り上がります。</p>
+        <div class="help-tip">💡 実行前に確認画面が表示されますが、実行後は元に戻せません。卒団する6年生の写真・記録が必要であれば、事前にExcel出力やスクリーンショットで控えを残しておくことをおすすめします。</div>
+        <div class="help-img-row"><a href="help-images/help-promotion.jpg" target="_blank"><img class="help-img" src="help-images/help-promotion.jpg" alt="一括進級の確認" loading="lazy"></a></div>
+        <p><b>選手名簿のExcel出力<span class="admin-tag">管理者のみ</span></b></p>
+        <p>「📊選手Excel出力」から、選手一覧をExcelファイルとしてダウンロードできます。</p>
+
+        <h4>🔑 パスワードの変更<span class="admin-tag">管理者のみ</span></h4>
+        <p>管理者メニューから「🔑パスワード変更」を開き、閲覧用・管理者用それぞれの新しい4桁の数字を入力して保存します。空欄のままにした方は変更されません。</p>
+        <div class="help-tip">💡 パスワードを変更したら、保護者の皆さんへの案内も忘れずに行ってください。</div>
+        <div class="help-img-row"><a href="help-images/help-pw-change.jpg" target="_blank"><img class="help-img" src="help-images/help-pw-change.jpg" alt="パスワード変更ポップアップ" loading="lazy"></a></div>
+
+        <h4>❓ 困ったときは</h4>
+        <table>
+          <tr><th>症状</th><th>対処方法</th></tr>
+          <tr><td>アプリを更新したのにアイコンや内容が変わらない</td><td>一度アプリを完全に閉じてから開き直してください。それでも変わらない場合は、ホーム画面のアイコンを削除して、ブラウザから開き直し、再度「ホーム画面に追加」をしてください</td></tr>
+          <tr><td>パスワードを忘れた</td><td>チームの管理者（監督・コーチ）にご確認ください</td></tr>
+          <tr><td>Googleマップのリンクが出ない</td><td>予定に「目的地」が入力されていない可能性があります。管理者に確認を依頼してください</td></tr>
+        </table>
+
+      </div>
+      <div class="help-footer">
+        <button class="btn-cancel" style="width:100%;" onclick="closeHelp()">閉じる</button>
+      </div>
     </div>
   </div>
 
@@ -2129,6 +2269,18 @@ async function deleteInfo(){
       }
     }
   });
+}
+
+// ===== 使い方モーダル =====
+function openHelp(){
+  const overlay=document.getElementById('helpModal');
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+  overlay.onclick=(e)=>{ if(e.target===overlay) closeHelp(); };
+}
+function closeHelp(){
+  document.getElementById('helpModal').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 // ===== パスワード変更 =====
