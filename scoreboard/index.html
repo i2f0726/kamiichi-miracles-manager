@@ -474,12 +474,10 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   margin-top:20px; padding-top:14px; border-top:1px solid var(--border);
 }
 #helpBtn {
-  position:fixed; top:14px; right:14px; z-index:12000;
-  width:36px; height:36px; border-radius:50%;
-  border:2px solid #fff; background:rgba(0,0,0,0.35); color:#fff;
-  font-size:1rem; font-weight:900; cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,0.35);
-  display:flex; align-items:center; justify-content:center;
+  padding:7px 14px; border-radius:100px;
+  border:1px solid var(--gold); background:#ffffff; color:var(--gold);
+  font-size:0.68rem; font-weight:900; cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif; letter-spacing:0.5px;
 }
 </style>
 </head>
@@ -513,7 +511,6 @@ header .stat-label { color:rgba(255,255,255,0.85); }
 
 
 <div id="appRoot" style="display:none">
-<button id="helpBtn" onclick="openHelp()" title="使い方">❔</button>
 <header style="padding:12px 16px;text-align:left;">
   <div style="display:flex;align-items:center;gap:16px;">
     <div style="width:64px;height:64px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.35);border:2px solid #ffffff;">
@@ -526,7 +523,8 @@ header .stat-label { color:rgba(255,255,255,0.85); }
   </div>
 </header>
 
-<div id="adminLoginBar" style="text-align:right;padding:8px 16px;background:var(--forest);">
+<div id="adminLoginBar" style="padding:8px 16px;background:var(--forest);display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+  <button id="helpBtn" onclick="openHelp()" title="使い方">❔ 使い方</button>
   <button id="adminLoginBtn" onclick="toggleAdmin()" style="padding:7px 14px;border-radius:100px;border:1px solid #999;background:#ffffff;color:#111;font-size:0.68rem;font-weight:900;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.5px;">🔒 管理者ログイン</button>
 </div>
 
