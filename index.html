@@ -389,6 +389,12 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
   <div class="header-stripe"></div>
+  <!-- A8広告（ヘッダー下） -->
+  <div class="a8-ad" style="display:flex;justify-content:center;align-items:center;padding:6px 0;background:var(--color-background-tertiary);">
+    <a href="https://px.a8.net/svt/ejp?a8mat=4BCJJS+6NXTFE+4ABU+5ZEMP" rel="nofollow" target="_blank">
+    <img border="0" width="320" height="50" alt="" src="https://www20.a8.net/svt/bgt?aid=260925688403&wid=006&eno=01&mid=s00000020001001005000&mc=1" style="display:block;max-width:100%;height:auto;"></a>
+    <img border="0" width="1" height="1" src="https://www12.a8.net/0.gif?a8mat=4BCJJS+6NXTFE+4ABU+5ZEMP" alt="" style="position:absolute;width:1px;height:1px;">
+  </div>
   <!-- インフォバナー（トップ表示） -->
   <div id="topInfoBanner" style="display:none;"></div>
   <div class="admin-bar">
@@ -2215,8 +2221,8 @@ function renderTopInfoBanner(){
   const banner=document.getElementById('topInfoBanner');
   if(!infos.length){ banner.style.display='none'; return; }
   const sorted=[...infos].sort((a,b)=>b.createdAt-a.createdAt);
-  // 最新3件まで表示
-  const items=sorted.slice(0,3);
+  // 最新1件のみ表示
+  const items=sorted.slice(0,1);
   banner.style.display='block';
   banner.innerHTML=`
     <div style="padding:10px 12px 4px;background:var(--color-background-tertiary);">
